@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using HotChocolate.Resolvers;
 using Microsoft.EntityFrameworkCore;
 
 namespace DynamicSchema;
@@ -39,10 +41,10 @@ public class FilesDbContext : DbContext
         {
             entity
                 .HasData(
-                    new FileMetaType { FileMetaTypeId = 1, FileTypeId = 1, Key = "width", DateType = FileMetaDataType.Int },
-                    new FileMetaType { FileMetaTypeId = 2, FileTypeId = 1, Key = "height", DateType = FileMetaDataType.Int },
-                    new FileMetaType { FileMetaTypeId = 3, FileTypeId = 1, Key = "dateTaken", DateType = FileMetaDataType.DateTime },
-                    new FileMetaType { FileMetaTypeId = 4, FileTypeId = 1, Key = "location", DateType = FileMetaDataType.String });
+                    new FileMetaType { FileMetaTypeId = 1, FileTypeId = 1, Key = "width", DataType = FileMetaDataType.Int },
+                    new FileMetaType { FileMetaTypeId = 2, FileTypeId = 1, Key = "height", DataType = FileMetaDataType.Int },
+                    new FileMetaType { FileMetaTypeId = 3, FileTypeId = 1, Key = "dateTaken", DataType = FileMetaDataType.DateTime },
+                    new FileMetaType { FileMetaTypeId = 4, FileTypeId = 1, Key = "location", DataType = FileMetaDataType.String });
         });
 
         modelBuilder.Entity<FileMeta>(entity =>
@@ -72,7 +74,22 @@ public class File
 
     public FileType Type { get; set; } = null!;
 
-    public ICollection<FileMeta> Metas { get; set; } = new List<FileMeta>();
+    public List<FileMeta> Metas { get; set; } = new List<FileMeta>();
+
+    public T? GetMetaValue<T>(IResolverContext context)
+    {
+        var key = context.Selection.SyntaxNode.ToString();
+        var meta = Metas.FirstOrDefault(meta => meta.Type.Key == key);
+
+        if (meta == null)
+        {
+            return default;
+        }
+        
+        var typeConverter = TypeDescriptor.GetConverter(typeof(T));
+
+        return (T?)typeConverter.ConvertFromString(meta.Value);
+    }
 }
 
 public class FileType
@@ -93,7 +110,7 @@ public class FileMetaType
 
     public string Key { get; set; } = string.Empty;
 
-    public FileMetaDataType DateType { get; set; }
+    public FileMetaDataType DataType { get; set; }
 }
 
 public class FileMeta

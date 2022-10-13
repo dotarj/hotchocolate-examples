@@ -15,7 +15,8 @@ builder.Services
     .AddGraphQLServer()
     .AddProjections()
     .RegisterDbContext<FilesDbContext>()
-    .AddQueryType<Query>();
+    .AddQueryType<Query>()
+    .AddTypeModule(serviceProvider => new FileMetaTypeModule(serviceProvider.GetRequiredService<FilesDbContext>()));
 
 var app = builder.Build();
 
