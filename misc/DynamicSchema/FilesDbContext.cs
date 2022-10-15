@@ -76,18 +76,19 @@ public class File
 
     public List<FileMeta> Metas { get; set; } = new List<FileMeta>();
 
+    [GraphQLIgnore]
     public T? GetMetaValue<T>(IResolverContext context)
     {
         var key = context.Selection.SyntaxNode.ToString();
         var meta = Metas.FirstOrDefault(meta => meta.Type.Key == key);
-
+    
         if (meta == null)
         {
             return default;
         }
         
         var typeConverter = TypeDescriptor.GetConverter(typeof(T));
-
+    
         return (T?)typeConverter.ConvertFromString(meta.Value);
     }
 }
