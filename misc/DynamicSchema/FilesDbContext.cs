@@ -74,6 +74,7 @@ public class File
 
     public FileType Type { get; set; } = null!;
 
+    [GraphQLIgnore]
     public List<FileMeta> Metas { get; set; } = new List<FileMeta>();
 
     [GraphQLIgnore]

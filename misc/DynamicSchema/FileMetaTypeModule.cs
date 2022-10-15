@@ -65,9 +65,7 @@ public class FileMetaTypeModule : ITypeModule
     {
         return new ObjectType<File>(descriptor =>
         {
-            descriptor.BindFieldsExplicitly();
-            descriptor.Field(t => t.FileId);
-            descriptor.Field(t => t.Name);
+            descriptor.BindFieldsImplicitly();
             descriptor.Field(t => t.Metas)
                 .Extend()
                 .Definition.Type = TypeReference.Create(new NonNullType(metasType));
